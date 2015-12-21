@@ -5,7 +5,7 @@ from os.path import basename
 import requests
 
 
-CLOUDPRINT_URL = "https://www.google.com/cloudprint"
+CLOUDPRINT_URL = 'https://www.google.com/cloudprint'
 
 
 def get_job(id, printer=None, **kwargs):
@@ -36,8 +36,8 @@ def delete_job(id, **kwargs):
 
     :returns: API response data as `dict`, or the HTTP response on failure
     """
-    url = CLOUDPRINT_URL + "/deletejob"
-    r = requests.post(url, data={"jobid": id}, **kwargs)
+    url = CLOUDPRINT_URL + '/deletejob'
+    r = requests.post(url, data={'jobid': id}, **kwargs)
     return r.json() if r.status_code == requests.codes.ok else r
 
 
@@ -58,14 +58,14 @@ def list_jobs(printer=None, **kwargs):
     """
     params = {}
     if printer is not None:
-        params["printerid"] = printer
-    url = CLOUDPRINT_URL + "/jobs"
+        params['printerid'] = printer
+    url = CLOUDPRINT_URL + '/jobs'
     r = requests.get(url, params=params, **kwargs)
     if r.status_code != requests.codes.ok:
         return r
     # At the time of writing, the `/jobs` API returns `Content-Type:
     # text/plain` header
-    return (r.json() if hasattr(r, "json") else json.loads(r.text))['jobs']
+    return (r.json() if hasattr(r, 'json') else json.loads(r.text))['jobs']
 
 
 def list_printers(**kwargs):
@@ -80,7 +80,7 @@ def list_printers(**kwargs):
         [...]
 
     """
-    url = CLOUDPRINT_URL + "/search"
+    url = CLOUDPRINT_URL + '/search'
     r = requests.get(url, **kwargs)
     if r.status_code != requests.codes.ok:
         return r
@@ -131,13 +131,17 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
         # magic default value
         capabilities = [{}]
 
-    files = {"content": (name, content)}
-    data = {"printerid": printer,
-            "title": title,
-            "contentType": content_type or mimetypes.guess_type(name)[0],
-            "capabilities": json.dumps({"capabilities": capabilities})}
+    files = {'content': (name, content)}
+    data = {
+        'printerid': printer,
+        'title': title,
+        'contentType': content_type or mimetypes.guess_type(name)[0],
+        'capabilities': json.dumps({"capabilities": capabilities})
+    }
+
     if tags:
         data['tag'] = tags
-    url = CLOUDPRINT_URL + "/submit"
+
+    url = CLOUDPRINT_URL + '/submit'
     r = requests.post(url, data=data, files=files, **kwargs)
     return r.json() if r.status_code == requests.codes.ok else r

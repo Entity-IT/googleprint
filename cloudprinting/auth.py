@@ -30,7 +30,7 @@ else:
 
             if self.caching:
                 # Hook the response to retry if the auth token is stale
-                def hook(response):
+                def hook(response, **kwargs):
                     if response.status_code == requests.codes.forbidden:
                         del self.token  # clear stale token
                         request = response.request
@@ -71,17 +71,17 @@ class OAuth2(object):
     authentication tokens to be refreshed when they expire. In this scenario,
     it's not necessary to provide the former arguments.
     """
-    token_endpoint = "https://accounts.google.com/o/oauth2/token"
-    device_code_endpoint = "https://accounts.google.com/o/oauth2/device/code"
-    scope = "https://www.googleapis.com/auth/cloudprint"
+    token_endpoint = 'https://accounts.google.com/o/oauth2/token'
+    device_code_endpoint = 'https://accounts.google.com/o/oauth2/device/code'
+    scope = 'https://www.googleapis.com/auth/cloudprint'
 
-    def __init__(self, access_token=None, token_type=None,
-                 refresh_token=None, client_id=None, client_secret=None):
-        if not ((access_token and token_type)
-                or (refresh_token and client_id and client_secret)):
-            raise TypeError("Invalid argument combination. Provide either "
-                "<access_token, token_type> or "
-                "<refresh_token, client_id, client_secret>.")
+    def __init__(self, access_token=None, token_type=None, refresh_token=None, client_id=None, client_secret=None):
+        if not ((access_token and token_type) or (refresh_token and client_id and client_secret)):
+            raise TypeError(
+                'Invalid argument combination. Provide either '
+                '<access_token, token_type> or '
+                '<refresh_token, client_id, client_secret>.'
+            )
 
         self.access_token = access_token
         self.token_type = token_type
@@ -107,7 +107,7 @@ class OAuth2(object):
 
         if self.client_id and self.client_secret and self.refresh_token:
             # enable auto refreshing of token
-            def hook(response):
+            def hook(response, **kwargs):
                 if response.status_code == requests.codes.forbidden:
                     self.expired = True
                     self.refresh()
@@ -129,10 +129,11 @@ class OAuth2(object):
             if not self.expired:
                 return
         r = requests.post(self.token_endpoint, data={
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "refresh_token": self.refresh_token,
-            "grant_type": "refresh_token"}).json()
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'refresh_token': self.refresh_token,
+            'grant_type': 'refresh_token'
+        }).json()
         self.access_token = r['access_token']
         self.expired = False
         self.token_type = r['token_type']
@@ -169,8 +170,9 @@ class OAuth2(object):
 
         """
         r = requests.post(cls.device_code_endpoint, data={
-                "client_id": client_id,
-                "scope": cls.scope}).json()
+            'client_id': client_id,
+            'scope': cls.scope
+        }).json()
         yield (r['verification_url'], r['user_code'])
 
         previous = 0
@@ -181,19 +183,19 @@ class OAuth2(object):
         while True:
             now = time()
             if now > expires_at:
-                raise RuntimeError("URL expired prior to user verification.")
+                raise RuntimeError('URL expired prior to user verification.')
             # honor rate limit
             sleep(max(interval - (now - previous), 0))
             previous = now
 
             r = requests.post(cls.token_endpoint, data={
-                    "client_id": client_id,
-                    "client_secret": client_secret,
-                    "code": device_code,
-                    "grant_type": "http://oauth.net/grant_type/device/1.0",
-                }).json()
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': device_code,
+                'grant_type': 'http://oauth.net/grant_type/device/1.0',
+            }).json()
 
-            if "error" in r:
+            if 'error' in r:
                 # Either we're polling too fast, or the user hasn't accepted yet.
                 continue
 
