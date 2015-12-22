@@ -1,12 +1,12 @@
 =============
-cloudprinting
+googleprint
 =============
 
 A simple interface to Google Cloud Print.
 
 Usage::
 
-    >>> from cloudprinting import *
+    >>> from googleprint import *
     >>> auth = OAuth2(access_token="qwertyuiopasdfghjkl", token_token="Bearer")
     >>> r = list_jobs(auth=auth)
     >>> r['jobs']
@@ -26,7 +26,7 @@ Install
 
 Use pip to install the latest version from PyPI::
 
-    pip install cloudprinting
+    pip install googleprint
 
 
 Command line interface
@@ -34,7 +34,7 @@ Command line interface
 
 The module can be used from the command line via::
 
-    python -m cloudprinting ...
+    python -m googleprint ...
 
 See ``--help`` for details.
 
@@ -60,41 +60,3 @@ Example::
     CP_REFESH_TOKEN=mnbvcxzlkjhgfdspoiuytr \
     CP_PRINTER_ID=0e50ed12-dbe0-54d3-a4bd-fdf9d45ff2fc \
     tox
-
-
-Change log
-==========
-
-0.3.2
-=====
-
-- Fix bug in auto-refreshing of OAuth2
-- Remove expiration time recording from OAuth2
-
-0.3.1
-=====
-
-- Make OAuth2 arguments all optional
-- Fix MANIFEST.in
-- Fix README bugs
-
-0.3.0
-=====
-
-- Add ``OAuth2`` authentication
-- ``ClientLoginAuth`` only available on Python 2.x
-- By default send ``capabilities`` (even if it's ``[{}]``). This fixes some
-  issues
-- Print jobs now default to using the filename as the title (no more automatic
-  inclusion of datetime)
-- Added a crude command line interface
-
-0.2.0
-=====
-
-- Make ``ClientLoginAuth`` cache authentication token
-
-0.1.0
-=====
-
-- Initial version

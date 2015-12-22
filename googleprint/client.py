@@ -82,9 +82,10 @@ def list_printers(**kwargs):
     """
     url = CLOUDPRINT_URL + '/search'
     r = requests.get(url, **kwargs)
-    if r.status_code != requests.codes.ok:
-        return r
-    return r.json()
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    else:
+        raise requests.RequestException
 
 
 def submit_job(printer, content, title=None, capabilities=None, tags=None,
@@ -136,7 +137,9 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
         'printerid': printer,
         'title': title,
         'contentType': content_type or mimetypes.guess_type(name)[0],
-        'capabilities': json.dumps({"capabilities": capabilities})
+        'capabilities': json.dumps({
+            'capabilities': capabilities
+        })
     }
 
     if tags:

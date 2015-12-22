@@ -4,18 +4,18 @@ import re
 from setuptools import setup
 
 # dynamically pull the version from cloudprinting/__init__.py
-with open(join('cloudprinting', '__init__.py'), 'r') as f:
+with open(join('googleprint', '__init__.py'), 'r') as f:
     version = re.search('^__version__ = "(.+?)"$', f.read(), re.MULTILINE).group(1)
 
 setup(
-    name='cloudprinting',
+    name='googleprint',
     version=version,
     description='Simple API for Google Cloud Print',
-    author='Bradley Ayers',
-    author_email='bradley.ayers@gmail.com',
-    url='http://pypi.python.org/pypi/cloudprinting/',
+    author='Jayden Smith',
+    author_email='jayden@intelliscale.com.au',
+    url='http://pypi.python.org/pypi/googleprint/',
 
-    packages=['cloudprinting'],
+    packages=['googleprint'],
     include_package_data=True,  # declarations in MANIFEST.in
 
     install_requires=['requests'],

@@ -25,11 +25,8 @@ auth = OAuth2(
 
 class UnitTests(unittest.TestCase):
     def test_oauth2_requires_argument_sets(self):
-        try:
-            OAuth2(access_token='foo', token_type='bar')
-            OAuth2(client_id='foo', client_secret='bar', refresh_token='baz')
-        except TypeError:
-            self.fail()
+        OAuth2(access_token='foo', token_type='bar')
+        OAuth2(client_id='foo', client_secret='bar', refresh_token='baz')
 
     def test_listing_printers(self):
         printers = list_printers(auth=auth)['printers']
@@ -57,10 +54,10 @@ class UnitTests(unittest.TestCase):
             self.assertTrue(delete_job(job['id'], auth=auth)['success'])
 
     def test_response_is_returned_on_remote_failures(self):
-        r = submit_job("bogus", PDF)
+        r = submit_job('bogus', PDF)
         self.assertIsInstance(r, requests.Response)
 
-        r = delete_job("bogus")
+        r = delete_job('bogus')
         self.assertIsInstance(r, requests.Response)
 
         r = list_jobs()
