@@ -3,14 +3,14 @@ import requests
 from os import environ
 from os.path import dirname, join
 from time import sleep
-from cloudprinting.client import (
+from googleprint.client import (
     delete_job,
     get_job,
     list_jobs,
     list_printers,
     submit_job,
 )
-from cloudprinting.auth import OAuth2
+from googleprint.auth import OAuth2
 
 
 PRINTER_ID = environ.get('CP_PRINTER_ID', '__google__docs')

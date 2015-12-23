@@ -13,12 +13,12 @@ setup(
     description='Simple API for Google Cloud Print',
     author='Jayden Smith',
     author_email='jayden@intelliscale.com.au',
-    url='http://pypi.python.org/pypi/googleprint/',
-
+    url='https://github.com/jaydensmith/googleprint',
+    download_url='https://github.com/jaydensmith/googleprint/tarball/' + version,
     packages=['googleprint'],
     include_package_data=True,  # declarations in MANIFEST.in
 
-    install_requires=['requests'],
+    install_requires=['requests', 'requests-oauthlib'],
 
     classifiers=[
         'Environment :: Web Environment',

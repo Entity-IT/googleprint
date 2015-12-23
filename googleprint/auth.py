@@ -35,8 +35,8 @@ else:
                         del self.token  # clear stale token
                         request = response.request
                         request.deregister_hook('response', hook)  # retry one time
-                        request.send(anyway=True)
-                        return request.response
+                        session = requests.Session()
+                        return session.send(request)
                     return response
                 r.hooks['response'].insert(0, hook)
             return r
@@ -115,8 +115,8 @@ class OAuth2(object):
                         request = response.request
                         self._stamp(request)
                         request.deregister_hook('response', hook)  # retry one time
-                        request.send(anyway=True)
-                        return request.response
+                        session = requests.Session()
+                        return session.send(request)
                 return response
             r.hooks['response'].insert(0, hook)
         return r
