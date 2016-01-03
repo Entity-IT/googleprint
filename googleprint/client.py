@@ -85,7 +85,7 @@ def list_printers(**kwargs):
     if r.status_code == requests.codes.ok:
         return r.json()
     else:
-        raise requests.RequestException
+        raise requests.RequestException(r.text)
 
 
 def submit_job(printer, content, title=None, capabilities=None, tags=None,
