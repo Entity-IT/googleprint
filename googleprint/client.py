@@ -88,8 +88,7 @@ def list_printers(**kwargs):
         raise requests.RequestException(r.text)
 
 
-def submit_job(printer, content, title=None, capabilities=None, tags=None,
-               content_type=None, **kwargs):
+def submit_job(printer, content=None, content_bytes=None, title=None, capabilities=None, tags=None, content_type=None, **kwargs):
     """
     Submit a print job.
 
@@ -117,16 +116,20 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
     details.
     """
     # normalise *content* to bytes, and *name* to a string
-    if isinstance(content, (list, tuple)):
-        name = content[0]
-        content = content[1].read()
-    else:
-        name = basename(content)
-        with open(content, 'rb') as f:
-            content = f.read()
+    if content is not None:
+        if isinstance(content, (list, tuple)):
+            name = content[0]
+            content = content[1].read()
+        else:
+            name = basename(content)
+            with open(content, 'rb') as f:
+                content = f.read()
 
-    if title is None:
-        title = name
+        if title is None:
+            title = name
+    else:
+        name = title
+        content = content_bytes
 
     if capabilities is None:
         # magic default value
@@ -147,4 +150,7 @@ def submit_job(printer, content, title=None, capabilities=None, tags=None,
 
     url = CLOUDPRINT_URL + '/submit'
     r = requests.post(url, data=data, files=files, **kwargs)
-    return r.json() if r.status_code == requests.codes.ok else r
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    else:
+        raise requests.RequestException(r.text)
