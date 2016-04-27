@@ -1,4 +1,4 @@
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from .auth import OAuth2
 try:
@@ -6,4 +6,4 @@ try:
 except ImportError:
     pass
 
-from .client import delete_job, get_job, list_jobs, list_printers, submit_job
+from .client import delete_job, get_job, list_jobs, list_printers, get_printer, submit_job

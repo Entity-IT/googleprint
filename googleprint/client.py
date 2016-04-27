@@ -102,7 +102,7 @@ def get_printer(printer_id, **kwargs):
     Printers are represented as `list` of `dict`
     """
     url = CLOUDPRINT_URL + '/printer'
-    r = requests.get(url, params={'printerid': printer_id}, **kwargs)
+    r = requests.get(url, params={'printerid': printer_id, 'extra_fields': 'connectionStatus'}, **kwargs)
     if r.status_code == requests.codes.ok:
         printers = r.json()['printers']
         if len(printers) == 1:
