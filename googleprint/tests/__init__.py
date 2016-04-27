@@ -8,6 +8,7 @@ from googleprint.client import (
     get_job,
     list_jobs,
     list_printers,
+    get_printer,
     submit_job,
 )
 from googleprint.auth import OAuth2
@@ -32,6 +33,10 @@ class UnitTests(unittest.TestCase):
         printers = list_printers(auth=auth)['printers']
         self.assertIsInstance(printers, list)
 
+    def test_get_printer(self):
+        printer = get_printer(printer_id=PRINTER_ID, auth=auth)
+        self.assertIsInstance(printer, dict)
+
     def test_print_pdf(self):
         job = submit_job(PRINTER_ID, PDF, auth=auth)['job']
         self.assertIsInstance(job, dict)
@@ -45,23 +50,23 @@ class UnitTests(unittest.TestCase):
             for i in attempts:
                 if i > 0:
                     sleep(delay)
-                latest = get_job(id=job['id'], auth=auth)
+                latest = get_job(job_id=job['id'], auth=auth)
                 if latest['status'] == 'DONE':
                     break
             else:
-                self.fail("Job got stuck on '%s'" % latest['status'])
+                self.fail("Job got stuck on '{0}'".format(latest['status']))
         finally:
             self.assertTrue(delete_job(job['id'], auth=auth)['success'])
 
     def test_response_is_returned_on_remote_failures(self):
-        r = submit_job('bogus', PDF)
-        self.assertIsInstance(r, requests.Response)
+        with self.assertRaises(requests.RequestException):
+            _ = submit_job('bogus', PDF)
 
-        r = delete_job('bogus')
-        self.assertIsInstance(r, requests.Response)
+        with self.assertRaises(requests.RequestException):
+            _ = delete_job('bogus')
 
-        r = list_jobs()
-        self.assertIsInstance(r, requests.Response)
+        with self.assertRaises(requests.RequestException):
+            _ = list_jobs()
 
 
 def main():

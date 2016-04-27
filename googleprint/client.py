@@ -8,12 +8,12 @@ import requests
 CLOUDPRINT_URL = 'https://www.google.com/cloudprint'
 
 
-def get_job(id, printer=None, **kwargs):
+def get_job(job_id, printer=None, **kwargs):
     """
     Returns the data for a single job.
 
-    :param      id: print job ID
-    :type       id: string
+    :param      job_id: print job ID
+    :type       job_id: string
     :param printer: if known, the printer id
     :type  printer: string
     :returns: `dict` expressing a job, or `None`
@@ -23,22 +23,25 @@ def get_job(id, printer=None, **kwargs):
     """
     jobs = list_jobs(printer=printer, **kwargs)
     for job in jobs:
-        if job['id'] == id:
+        if job['id'] == job_id:
             return job
 
 
-def delete_job(id, **kwargs):
+def delete_job(job_id, **kwargs):
     """
     Delete a print job.
 
-    :param id: job ID
-    :type  id: string
+    :param job_id: job ID
+    :type  job_id: string
 
     :returns: API response data as `dict`, or the HTTP response on failure
     """
     url = CLOUDPRINT_URL + '/deletejob'
-    r = requests.post(url, data={'jobid': id}, **kwargs)
-    return r.json() if r.status_code == requests.codes.ok else r
+    r = requests.post(url, data={'jobid': job_id}, **kwargs)
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    else:
+        raise requests.RequestException(r.text)
 
 
 def list_jobs(printer=None, **kwargs):
@@ -61,20 +64,22 @@ def list_jobs(printer=None, **kwargs):
         params['printerid'] = printer
     url = CLOUDPRINT_URL + '/jobs'
     r = requests.get(url, params=params, **kwargs)
-    if r.status_code != requests.codes.ok:
-        return r
-    # At the time of writing, the `/jobs` API returns `Content-Type:
-    # text/plain` header
-    return (r.json() if hasattr(r, 'json') else json.loads(r.text))['jobs']
+
+    if r.status_code == requests.codes.ok:
+        # At the time of writing, the `/jobs` API returns `Content-Type:
+        # text/plain` header
+        return (r.json() if hasattr(r, 'json') else json.loads(r.text))['jobs']
+    else:
+        raise requests.RequestException(r.text)
 
 
 def list_printers(**kwargs):
     """
     List registered printers.
 
-    :returns: API response data as `dict`, or the HTTP response on failure
+    :returns: API response data as `dict`
 
-    Printers are represented as `list` of `dict`::
+    Printers are represented as `list` of `dict`.
 
         >>> list_printers(auth=...)['printers']
         [...]
@@ -88,6 +93,26 @@ def list_printers(**kwargs):
         raise requests.RequestException(r.text)
 
 
+def get_printer(printer_id, **kwargs):
+    """
+    Gets a specific printer.
+
+    :returns: API response data as `dict`.
+
+    Printers are represented as `list` of `dict`
+    """
+    url = CLOUDPRINT_URL + '/printer'
+    r = requests.get(url, params={'printerid': printer_id}, **kwargs)
+    if r.status_code == requests.codes.ok:
+        printers = r.json()['printers']
+        if len(printers) == 1:
+            return printers[0]
+        else:
+            raise Exception('Unexpected response from Google Cloud print.')
+    else:
+        raise requests.RequestException(r.text)
+
+
 def submit_job(printer, content=None, content_bytes=None, title=None, capabilities=None, tags=None, content_type=None, **kwargs):
     """
     Submit a print job.
@@ -96,6 +121,8 @@ def submit_job(printer, content=None, content_bytes=None, title=None, capabiliti
     :type        printer: string
     :param       content: what should be printer
     :type        content: ``(name, file-like)`` pair or path
+    :param       content_bytes: raw file to print
+    :type        content_bytes: bytearray
     :param  capabilities: capabilities for the printer
     :type   capabilities: list
     :param         title: title of the print job, should be unique to printer
@@ -150,6 +177,7 @@ def submit_job(printer, content=None, content_bytes=None, title=None, capabiliti
 
     url = CLOUDPRINT_URL + '/submit'
     r = requests.post(url, data=data, files=files, **kwargs)
+
     if r.status_code == requests.codes.ok:
         return r.json()
     else:
