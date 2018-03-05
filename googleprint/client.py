@@ -113,7 +113,7 @@ def get_printer(printer_id, **kwargs):
         raise requests.RequestException(r.text)
 
 
-def submit_job(printer, content=None, content_bytes=None, title=None, capabilities=None, tags=None, content_type=None, **kwargs):
+def submit_job(printer, content=None, content_bytes=None, title=None, ticket=None, tags=None, content_type=None, **kwargs):
     """
     Submit a print job.
 
@@ -123,14 +123,14 @@ def submit_job(printer, content=None, content_bytes=None, title=None, capabiliti
     :type        content: ``(name, file-like)`` pair or path
     :param       content_bytes: raw file to print
     :type        content_bytes: bytearray
-    :param  capabilities: capabilities for the printer
-    :type   capabilities: list
-    :param         title: title of the print job, should be unique to printer
-    :type          title: string
-    :param          tags: job tags
-    :type           tags: list
-    :params content_type: explicit mimetype for content
-    :type   content_type: string
+    :param       ticket: ticket
+    :type        ticket: dict
+    :param       title: title of the print job, should be unique to printer
+    :type        title: string
+    :param       tags: job tags
+    :type        tags: list
+    :params      content_type: explicit mimetype for content
+    :type        content_type: string
 
     :returns: API response data as `dict`, or the HTTP response on failure
 
@@ -158,18 +158,16 @@ def submit_job(printer, content=None, content_bytes=None, title=None, capabiliti
         name = title
         content = content_bytes
 
-    if capabilities is None:
+    if ticket is None:
         # magic default value
-        capabilities = [{}]
+        ticket = {}
 
     files = {'content': (name, content)}
     data = {
         'printerid': printer,
         'title': title,
         'contentType': content_type or mimetypes.guess_type(name)[0],
-        'capabilities': json.dumps({
-            'capabilities': capabilities
-        })
+        'ticket': json.dumps(ticket)
     }
 
     if tags:
