@@ -160,14 +160,14 @@ def submit_job(printer, content=None, content_bytes=None, title=None, ticket=Non
 
     if ticket is None:
         # magic default value
-        ticket = {}
+        ticket = [{}]
 
     files = {'content': (name, content)}
     data = {
         'printerid': printer,
         'title': title,
         'contentType': content_type or mimetypes.guess_type(name)[0],
-        'ticket': json.dumps(ticket)
+        'ticket': json.dumps({'ticket': ticket})
     }
 
     if tags:
